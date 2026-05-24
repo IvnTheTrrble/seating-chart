@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lydia & Ivan - Find Your Table</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: #fff;
+            color: #000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 400;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+            font-family: 'Great Vibes', cursive;
+        }
+
+        .header p {
+            font-size: 12px;
+            font-weight: 300;
+            letter-spacing: 0.8px;
+            color: #666;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            border: 1px solid #000;
+            background-color: #fff;
+            font-family: inherit;
+            letter-spacing: 0.3px;
+        }
+
+        input[type="text"]::placeholder {
+            color: #999;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            box-shadow: inset 0 0 0 1px #000;
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #666;
+            display: none;
+        }
+
+        .clear-btn.visible {
+            display: block;
+        }
+
+        .clear-btn:hover {
+            color: #000;
+        }
+
+        .search-results {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #000;
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .result-item {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 15px;
+            letter-spacing: 0.3px;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .result-item.selected {
+            background-color: #f0f0f0;
+            font-weight: 600;
+        }
+
+        .no-results {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .result-display {
+            display: none;
+            text-align: center;
+            margin-top: 40px;
+            padding: 40px 20px;
+            border: 1px solid #000;
+            background-color: #fafafa;
+        }
+
+        .result-display.active {
+            display: block;
+        }
+
+        .result-display h2 {
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            color: #666;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .table-number {
+            font-size: 72px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            margin: 20px 0;
+            line-height: 1;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .guest-name {
+            font-size: 20px;
+            letter-spacing: 0.5px;
+            margin-bottom: 30px;
+            font-family: 'Great Vibes', cursive;
+            font-weight: 400;
+        }
+
+        .seating-info {
+            font-size: 13px;
+            color: #666;
+            letter-spacing: 0.5px;
+        }
+
+        .reset-btn {
+            background: #000;
+            color: #fff;
+            border: 1px solid #000;
+            padding: 14px 30px;
+            font-size: 13px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            margin-top: 30px;
+            transition: background-color 0.2s;
+            font-family: inherit;
+        }
+
+        .reset-btn:hover {
+            background-color: #333;
+        }
+
+        .tabs {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .table-number {
+                font-size: 56px;
+            }
+
+            .result-display {
+                padding: 30px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Find Your Table</h1>
+            <p>Lydia & Ivan's Wedding · 06.06.2026</p>
+        </div>
+
+        <div class="tab-content active" id="search-tab">
+            <div class="input-section">
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="nameInput" 
+                        placeholder="Enter your name"
+                        autocomplete="off"
+                    >
+                    <button class="clear-btn" id="clearBtn">✕</button>
+                </div>
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <div class="result-display" id="resultDisplay">
+                <h2>Your Seating</h2>
+                <div class="guest-name" id="displayName"></div>
+                <div class="table-number" id="displayTable"></div>
+                <div class="seating-info">Free seating at your table</div>
+                <button class="reset-btn" id="resetBtn">Search Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Guest data
+        const guestData = [
+  {
+    "name": "Lim Soo Yee",
+    "table": 1
+  },
+  {
+    "name": "Rizal",
+    "table": 1
+  },
+  {
+    "name": "Rio",
+    "table": 1
+  },
+  {
+    "name": "Rey",
+    "table": 1
+  },
+  {
+    "name": "Kakak",
+    "table": 1
+  },
+  {
+    "name": "Wan Yee",
+    "table": 1
+  },
+  {
+    "name": "Sally",
+    "table": 1
+  },
+  {
+    "name": "Ally",
+    "table": 1
+  },
+  {
+    "name": "Soo Ching",
+    "table": 1
+  },
+  {
+    "name": "Max",
+    "table": 1
+  },
+  {
+    "name": "Lim Loong Seng",
+    "table": 2
+  },
+  {
+    "name": "Ong Bee Hwa",
+    "table": 2
+  },
+  {
+    "name": "Lim Chee Wei",
+    "table": 2
+  },
+  {
+    "name": "B Eyun Ee",
+    "table": 2
+  },
+  {
+    "name": "B Heang Ee",
+    "table": 2
+  },
+  {
+    "name": "Uncle Fong",
+    "table": 2
+  },
+  {
+    "name": "Godma (Aunty Caroline)",
+    "table": 2
+  },
+  {
+    "name": "Uncle Kat",
+    "table": 2
+  },
+  {
+    "name": "Aunty Gien",
+    "table": 2
+  },
+  {
+    "name": "Uncle Tien",
+    "table": 2
+  },
+  {
+    "name": "Chan Yue Kong",
+    "table": 3
+  },
+  {
+    "name": "Poh Ann",
+    "table": 3
+  },
+  {
+    "name": "Shaun Chan",
+    "table": 3
+  },
+  {
+    "name": "Jasmine - Shaun fiance",
+    "table": 3
+  },
+  {
+    "name": "Brian Chan",
+    "table": 3
+  },
+  {
+    "name": "Uncle Looi",
+    "table": 3
+  },
+  {
+    "name": "Wife",
+    "table": 3
+  },
+  {
+    "name": "Akoo Joo",
+    "table": 3
+  },
+  {
+    "name": "Akim",
+    "table": 3
+  },
+  {
+    "name": "Kumar",
+    "table": 4
+  },
+  {
+    "name": "Jayanti",
+    "table": 4
+  },
+  {
+    "name": "Leth",
+    "table": 4
+  },
+  {
+    "name": "Helena",
+    "table": 4
+  },
+  {
+    "name": "Raj",
+    "table": 4
+  },
+  {
+    "name": "Cherrie",
+    "table": 4
+  },
+  {
+    "name": "Pastor",
+    "table": 4
+  },
+  {
+    "name": "Lynette",
+    "table": 4
+  },
+  {
+    "name": "Norman",
+    "table": 4
+  },
+  {
+    "name": "Agnes",
+    "table": 4
+  },
+  {
+    "name": "Charlie",
+    "table": 5
+  },
+  {
+    "name": "Spouse",
+    "table": 5
+  },
+  {
+    "name": "Morgan",
+    "table": 5
+  },
+  {
+    "name": "Spouse",
+    "table": 5
+  },
+  {
+    "name": "Pearl",
+    "table": 5
+  },
+  {
+    "name": "Stephen",
+    "table": 5
+  },
+  {
+    "name": "Judy",
+    "table": 5
+  },
+  {
+    "name": "Kumars daughter",
+    "table": 5
+  },
+  {
+    "name": "Sree",
+    "table": 5
+  },
+  {
+    "name": "Latif",
+    "table": 5
+  },
+  {
+    "name": "Vincent",
+    "table": 6
+  },
+  {
+    "name": "Mei Ling",
+    "table": 6
+  },
+  {
+    "name": "Mo Ching",
+    "table": 6
+  },
+  {
+    "name": "Helen Chan",
+    "table": 6
+  },
+  {
+    "name": "Patricia Chan",
+    "table": 6
+  },
+  {
+    "name": "Ivan Lim",
+    "table": 6
+  },
+  {
+    "name": "Chan Yue Choy",
+    "table": 6
+  },
+  {
+    "name": "Yuen Har",
+    "table": 6
+  },
+  {
+    "name": "Cynthia",
+    "table": 7
+  },
+  {
+    "name": "Joseph",
+    "table": 7
+  },
+  {
+    "name": "Colin",
+    "table": 7
+  },
+  {
+    "name": "Jennifer",
+    "table": 7
+  },
+  {
+    "name": "Anna",
+    "table": 7
+  },
+  {
+    "name": "Krysha",
+    "table": 7
+  },
+  {
+    "name": "Mary",
+    "table": 7
+  },
+  {
+    "name": "Clive",
+    "table": 7
+  },
+  {
+    "name": "Arlene",
+    "table": 7
+  },
+  {
+    "name": "Mohan",
+    "table": 7
+  },
+  {
+    "name": "Uncle Beng Yee",
+    "table": 8
+  },
+  {
+    "name": "Aunty Terri",
+    "table": 8
+  },
+  {
+    "name": "Uncle TG",
+    "table": 8
+  },
+  {
+    "name": "Uncle TG Wife",
+    "table": 8
+  },
+  {
+    "name": "Uncle Yang",
+    "table": 8
+  },
+  {
+    "name": "Aunty Esther",
+    "table": 8
+  },
+  {
+    "name": "Uncle Skit",
+    "table": 8
+  },
+  {
+    "name": "Aida Azrin",
+    "table": 9
+  },
+  {
+    "name": "Ryan Matjeraie",
+    "table": 9
+  },
+  {
+    "name": "Azhary Azhar",
+    "table": 9
+  },
+  {
+    "name": "Jaron Sim",
+    "table": 9
+  },
+  {
+    "name": "Ira Roslan",
+    "table": 9
+  },
+  {
+    "name": "Samantha Yap",
+    "table": 9
+  },
+  {
+    "name": "Shakeel Umar",
+    "table": 9
+  },
+  {
+    "name": "Becca Yap",
+    "table": 9
+  },
+  {
+    "name": "Eddie Samad",
+    "table": 9
+  },
+  {
+    "name": "Naufal Anwa",
+    "table": 9
+  },
+  {
+    "name": "Aryan",
+    "table": 10
+  },
+  {
+    "name": "Rami",
+    "table": 10
+  },
+  {
+    "name": "Daryl",
+    "table": 10
+  },
+  {
+    "name": "Hiddy",
+    "table": 10
+  },
+  {
+    "name": "Sionglun",
+    "table": 10
+  },
+  {
+    "name": "Coco",
+    "table": 10
+  },
+  {
+    "name": "Ari",
+    "table": 10
+  },
+  {
+    "name": "Joe",
+    "table": 10
+  },
+  {
+    "name": "Alanna",
+    "table": 10
+  },
+  {
+    "name": "Roy",
+    "table": 10
+  },
+  {
+    "name": "Chow Sook Mei",
+    "table": 11
+  },
+  {
+    "name": "Sabrina Jaafar",
+    "table": 11
+  },
+  {
+    "name": "Marie Lim",
+    "table": 11
+  },
+  {
+    "name": "Chloe Chon",
+    "table": 11
+  },
+  {
+    "name": "Sinclair Yim",
+    "table": 11
+  },
+  {
+    "name": "Johnney Yong",
+    "table": 11
+  },
+  {
+    "name": "Jason Wong",
+    "table": 11
+  },
+  {
+    "name": "Natasha Karim",
+    "table": 11
+  },
+  {
+    "name": "Carmen Cheong",
+    "table": 11
+  },
+  {
+    "name": "Alison Siow",
+    "table": 11
+  },
+  {
+    "name": "Azfar Jamili",
+    "table": 12
+  },
+  {
+    "name": "Shaleea Johan",
+    "table": 12
+  },
+  {
+    "name": "Yon (Amirul Adlee)",
+    "table": 12
+  },
+  {
+    "name": "Fathin Fauzy",
+    "table": 12
+  },
+  {
+    "name": "Adam Azman",
+    "table": 12
+  },
+  {
+    "name": "Jane Foong",
+    "table": 12
+  },
+  {
+    "name": "Johan Danial",
+    "table": 12
+  },
+  {
+    "name": "Nurul Ain Idris",
+    "table": 12
+  },
+  {
+    "name": "Azim Daman",
+    "table": 12
+  },
+  {
+    "name": "Adreana Nordin",
+    "table": 12
+  },
+  {
+    "name": "Haikal Amir Hamzah",
+    "table": 13
+  },
+  {
+    "name": "Myra Rashid",
+    "table": 13
+  },
+  {
+    "name": "Afiq Said",
+    "table": 13
+  },
+  {
+    "name": "Hanna Haziqah",
+    "table": 13
+  },
+  {
+    "name": "Harry",
+    "table": 13
+  },
+  {
+    "name": "Josh",
+    "table": 13
+  },
+  {
+    "name": "Loli",
+    "table": 13
+  },
+  {
+    "name": "Joel",
+    "table": 13
+  },
+  {
+    "name": "Glen",
+    "table": 13
+  },
+  {
+    "name": "Elysha Hanim",
+    "table": 14
+  },
+  {
+    "name": "Wan Azrie",
+    "table": 14
+  },
+  {
+    "name": "Geraldine Andrea",
+    "table": 14
+  },
+  {
+    "name": "Ammos Stevenson",
+    "table": 14
+  },
+  {
+    "name": "Sofiee Sharizan",
+    "table": 14
+  },
+  {
+    "name": "Aaron Joseph Gideon",
+    "table": 14
+  },
+  {
+    "name": "Neeti Ravindra",
+    "table": 14
+  },
+  {
+    "name": "Krishnaveen",
+    "table": 14
+  },
+  {
+    "name": "Dhivakaran Jude",
+    "table": 14
+  }
+        ];
+
+        // DOM Elements
+        const nameInput = document.getElementById('nameInput');
+        const searchResults = document.getElementById('searchResults');
+        const resultDisplay = document.getElementById('resultDisplay');
+        const displayName = document.getElementById('displayName');
+        const displayTable = document.getElementById('displayTable');
+        const resetBtn = document.getElementById('resetBtn');
+        const clearBtn = document.getElementById('clearBtn');
+
+        // Search functionality
+        nameInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.trim().toLowerCase();
+            clearBtn.classList.toggle('visible', searchTerm.length > 0);
+
+            if (searchTerm.length === 0) {
+                searchResults.classList.remove('active');
+                return;
+            }
+
+            // "Contains" search logic
+            const results = guestData.filter(guest =>
+                guest.name.toLowerCase().includes(searchTerm)
+            );
+
+            if (results.length === 0) {
+                searchResults.innerHTML = '<div class="no-results">No matches found</div>';
+                searchResults.classList.add('active');
+                return;
+            }
+
+            searchResults.innerHTML = results.map(guest =>
+                `<div class="result-item" onclick="selectGuest('${guest.name}', ${guest.table})">${guest.name}</div>`
+            ).join('');
+            searchResults.classList.add('active');
+        });
+
+        clearBtn.addEventListener('click', () => {
+            nameInput.value = '';
+            searchResults.classList.remove('active');
+            clearBtn.classList.remove('visible');
+            nameInput.focus();
+        });
+
+        function selectGuest(name, table) {
+            displayName.textContent = name;
+            displayTable.textContent = table;
+            resultDisplay.classList.add('active');
+            searchResults.classList.remove('active');
+            nameInput.value = '';
+            clearBtn.classList.remove('visible');
+        }
+
+        resetBtn.addEventListener('click', () => {
+            resultDisplay.classList.remove('active');
+            nameInput.value = '';
+            clearBtn.classList.remove('visible');
+            nameInput.focus();
+        });
+
+        // Focus input on page load
+        window.addEventListener('load', () => {
+            nameInput.focus();
+        });
+    </script>
+</body>
+</html>
