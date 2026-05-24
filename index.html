@@ -828,7 +828,7 @@
   {
     "name": "Ivory Lorraine Roy",
     "table": "VIP"
-  },
+  }
         ];
 
         // DOM Elements
@@ -861,9 +861,19 @@
                 return;
             }
 
-            searchResults.innerHTML = results.map(guest =>
-                `<div class="result-item" onclick="selectGuest('${guest.name}', ${guest.table})">${guest.name}</div>`
+            // Create result items with proper event listeners instead of onclick
+            searchResults.innerHTML = results.map((guest, index) => 
+                `<div class="result-item" data-index="${index}">${guest.name}</div>`
             ).join('');
+            
+            // Add click listeners to all result items
+            document.querySelectorAll('.result-item').forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    const guest = results[index];
+                    selectGuest(guest.name, guest.table);
+                });
+            });
+            
             searchResults.classList.add('active');
         });
 
